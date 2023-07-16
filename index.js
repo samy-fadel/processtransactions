@@ -52,7 +52,7 @@ async function retrieveTransactions() {
 
       const sortedTransactions = transactions.filter((transaction) => {
         // Check if the transaction is a smart contract creation transaction
-        return !transaction.to || transaction.to.trim() === '';
+        return transaction && (!transaction.to || transaction.to.trim() === '');
       });
 
       for (const transaction of sortedTransactions) {
