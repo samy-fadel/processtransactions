@@ -56,6 +56,7 @@ async function retrieveTransactions() {
       });
 
       for (const transaction of sortedTransactions) {
+        console.log(sortedTransactions);
         await publishTransaction(transaction);
       }
 
