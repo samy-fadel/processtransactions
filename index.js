@@ -5,7 +5,6 @@ const { v1 } = require('@google-cloud/pubsub');
 
 const projectId = process.env.PROJECT_ID;
 const subscriptionName = 'transactions-topic-sub';
-const transactionsTopicName = 'transactions-topic';
 const smartContractsTopicName = 'smart-contracts-transactions';
 
 const client = new v1.SubscriberClient();
