@@ -10,6 +10,8 @@ const smartContractsTopicName = 'smart-contracts-transactions';
 const client = new v1.SubscriberClient();
 const pubsub = new PubSub({ projectId });
 
+console.log("line 13 ");
+
 // Function to retrieve the API key from Secret Manager
 async function getApiKey() {
   const secretName = `projects/${process.env.PROJECT_NUMBER}/secrets/web3-api-key/versions/latest`;
@@ -19,6 +21,7 @@ async function getApiKey() {
 }
 
 async function publishTransaction(transaction) {
+  console.log("line 24 publishTransaction ");
   const data = Buffer.from(JSON.stringify(transaction));
   await pubsub.topic(smartContractsTopicName).publish(data);
 }
@@ -34,6 +37,7 @@ async function handleError(message) {
 }
 
 async function retrieveTransactions() {
+  console.log("line 40 retrieveTransactions ");
   const apiKey = await getApiKey();
   const web3 = new Web3(`https://mainnet.infura.io/v3/${apiKey}`);
 
@@ -42,7 +46,7 @@ async function retrieveTransactions() {
       subscription: client.subscriptionPath(process.env.PROJECT_ID, subscriptionName),
       maxMessages: 1,
     };
-
+    console.log("line 49 try retrieveTransactions ");
     const [response] = await client.pull(request);
     const messages = response.receivedMessages;
 
@@ -56,7 +60,7 @@ async function retrieveTransactions() {
       });
 
       for (const transaction of sortedTransactions) {
-        console.log(sortedTransactions);
+        console.log("line 59 ", sortedTransactions);
         await publishTransaction(transaction);
       }
 
@@ -70,7 +74,7 @@ async function retrieveTransactions() {
       console.log('No messages received from Pub/Sub subscription');
     }
   } catch (error) {
-    console.error('Error retrieving transactions:', error);
+    console.error('line 77 Error retrieving transactions:', error);
     if (messages && messages.length > 0) {
       const ackRequest = {
         subscription: request.subscription,
