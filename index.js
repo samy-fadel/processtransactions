@@ -53,12 +53,10 @@ async function retrieveTransactions() {
 
     if (messages && messages.length > 0) {
       console.log("line 55 inside if");
-      const message = messages[0].message;
-      const messageData = message.data.toString();
-      const transactions = JSON.parse(messageData).blockNumber;
-      //const transactionMessages = messages.map((msg) => JSON.parse(msg.message.data.toString()));
-      //const transactions = transactionMessages.map((transactionMsg) => transactionMsg.transaction);
-      console.log(transactions);
+      const transactionMessages = messages.map((msg) => JSON.parse(msg.message.data.toString())); 
+      console.log("line 57", transactionMessages);
+      const transactions = transactionMessages.map((transactionMsg) => transactionMsg.transaction);
+      console.log("line 59", transactions);
 
       const sortedTransactions = transactions.filter((transaction) => {
         console.log("line 60 inside sortedtx")
