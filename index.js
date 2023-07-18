@@ -52,12 +52,18 @@ async function retrieveTransactions() {
    // console.log(messages);
 
     if (messages && messages.length > 0) {
-      console.log("line 55 inside if");
+      //console.log("line 55 inside if");
       //const transactionMessages = messages.map((msg) => JSON.parse(msg.message.data.toString())); 
-      const transactionMessages = JSON.parse(message.data.toString());
-      console.log("line 58 tx msg", transactionMessages);
-      const transactions = transactionMessages.map((transactionMsg) => transactionMsg.transaction);
-      console.log("line 59", transactions);
+     // const transactionMessages = JSON.parse(message.data.toString());
+     // console.log("line 58 tx msg", transactionMessages);
+     // const transactions = transactionMessages.map((transactionMsg) => transactionMsg.transaction);
+     // console.log("line 59", transactions);
+
+
+      const message = messages[0].message;
+      const messageData = message.data.toString();
+      console.log("line 65 ", messageData);
+
 
       const sortedTransactions = transactions.filter((transaction) => {
         console.log("line 60 inside sortedtx")
