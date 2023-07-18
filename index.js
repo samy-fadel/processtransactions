@@ -10,7 +10,7 @@ const smartContractsTopicName = 'smart-contracts-transactions';
 const client = new v1.SubscriberClient();
 const pubsub = new PubSub({ projectId });
 
-console.log("line 13 ");
+console.log("line 13 before all code ");
 
 // Function to retrieve the API key from Secret Manager
 async function getApiKey() {
@@ -49,12 +49,15 @@ async function retrieveTransactions() {
     console.log("line 49 try retrieveTransactions ");
     const [response] = await client.pull(request);
     const messages = response.receivedMessages;
+    console.log(messages);
 
     if (messages && messages.length > 0) {
+      console.log("line 55 inside if");
       const transactionMessages = messages.map((msg) => JSON.parse(msg.message.data.toString()));
       const transactions = transactionMessages.map((transactionMsg) => transactionMsg.transaction);
 
       const sortedTransactions = transactions.filter((transaction) => {
+        console.log("line 60 inside sortedtx")
         // Check if the transaction is a smart contract creation transaction
         return transaction && (!transaction.to || transaction.to.trim() === '');
       });
