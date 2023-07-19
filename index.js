@@ -1,3 +1,42 @@
+const { PubSub } = require('@google-cloud/pubsub');
+const Web3 = require('web3');
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
+const { v1 } = require('@google-cloud/pubsub');
+
+const projectId = process.env.PROJECT_ID;
+const subscriptionName = 'transactions-topic-sub';
+const smartContractsTopicName = 'smart-contracts-transactions';
+
+const client = new v1.SubscriberClient();
+const pubsub = new PubSub({ projectId });
+
+console.log("line 13 before all code ");
+
+// Function to retrieve the API key from Secret Manager
+async function getApiKey() {
+  const secretName = `projects/${process.env.PROJECT_NUMBER}/secrets/web3-api-key/versions/latest`;
+  const client = new SecretManagerServiceClient();
+  const [version] = await client.accessSecretVersion({ name: secretName });
+  return version.payload.data.toString();
+}
+
+async function publishTransaction(transaction) {
+  console.log("line 24 publishTransaction ");
+  const data = Buffer.from(JSON.stringify(transaction));
+  await pubsub.topic(smartContractsTopicName).publish(data);
+}
+
+async function handleError(message) {
+  try {
+    const data = Buffer.from(JSON.stringify(message));
+    await pubsub.topic(subscriptionName).publish(data);
+    console.log('Message put back in Pub/Sub subscription:', message);
+  } catch (error) {
+    console.error('Error handling error:', error);
+  }
+}
+
+
 async function retrieveTransactions() {
   console.log("line 40 retrieveTransactions ");
   const apiKey = await getApiKey();
@@ -8,7 +47,7 @@ async function retrieveTransactions() {
       subscription: client.subscriptionPath(process.env.PROJECT_ID, subscriptionName),
       maxMessages: 1,
     };
-    console.log("line 49 try retrieveTransactions ");
+    console.log("line 11 try retrieveTransactions ");
     const [response] = await client.pull(request);
     const messages = response.receivedMessages;
     console.log("line 14 ", messages);
@@ -56,3 +95,7 @@ async function retrieveTransactions() {
     }
   }
 }
+
+
+
+retrieveTransactions();
