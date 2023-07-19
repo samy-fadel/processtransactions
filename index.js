@@ -11,17 +11,21 @@ async function retrieveTransactions() {
     console.log("line 49 try retrieveTransactions ");
     const [response] = await client.pull(request);
     const messages = response.receivedMessages;
-    // console.log(messages);
+    console.log("line 14 ", messages);
 
     if (messages && messages.length > 0) {
+      console.log("line 17 in if ");
       const message = messages[0].message;
       const transaction = JSON.parse(message.data.toString());
-      console.log("line 65 ", transaction);
+      console.log("line 20 ", transaction);
 
       // Check if the transaction is a smart contract creation transaction
       const isSmartContractCreation = !transaction.to || transaction.to.trim() === '';
+      console.log("line 24 ", isSmartContractCreation);
+
 
       if (isSmartContractCreation) {
+        console.log("line 28 ");
         // If it's a smart contract creation, publish it to the topic
         await publishTransaction(transaction);
       } else {
