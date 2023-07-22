@@ -36,55 +36,48 @@ async function handleError(message) {
 async function retrieveTransactions() {
   const apiKey = await getApiKey();
   const web3 = new Web3(`https://mainnet.infura.io/v3/${apiKey}`);
+  let continueProcessing = true;
 
-  try {
-    const request = {
-      subscription: client.subscriptionPath(process.env.PROJECT_ID, subscriptionName),
-      maxMessages: 10, // Adjust the maxMessages value as needed
-    };
+  while (continueProcessing) {
+    try {
+      const request = {
+        subscription: client.subscriptionPath(process.env.PROJECT_ID, subscriptionName),
+        maxMessages: 50, // Process messages in batches of 50
+      };
 
-    const [response] = await client.pull(request);
-    const messages = response.receivedMessages;
+      const [response] = await client.pull(request);
+      const messages = response.receivedMessages;
 
-    if (messages && messages.length > 0) {
-      for (const message of messages) {
-        const transaction = JSON.parse(message.message.data.toString());
-        console.log("line 65 ", transaction);
+      if (messages && messages.length > 0) {
+        for (const message of messages) {
+          const transaction = JSON.parse(message.message.data.toString());
+          console.log("Transaction:", transaction);
 
-        // Get the transaction receipt to check if it's a contract creation
-        //        const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
-        const receipt = await web3.eth.getTransactionReceipt(transaction);
-        const isSmartContractCreation = receipt.contractAddress !== null;
+          // Get the transaction receipt to check if it's a contract creation
+          const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
+          const isSmartContractCreation = receipt.contractAddress !== null;
 
-        if (isSmartContractCreation) {
-          // If it's a smart contract creation, publish the contract address as an individual message
-          await publishSmartContractAddress(receipt.contractAddress);
-        } else {
-          console.log("Not a smart contract creation transaction.");
+          if (isSmartContractCreation) {
+            // If it's a smart contract creation, publish the contract address as an individual message
+            await publishSmartContractAddress(receipt.contractAddress);
+          } else {
+            console.log("Not a smart contract creation transaction.");
+          }
         }
+
+        const ackRequest = {
+          subscription: request.subscription,
+          ackIds: messages.map((msg) => msg.ackId),
+        };
+
+        await client.acknowledge(ackRequest);
+      } else {
+        console.log('No more messages to process. Exiting loop.');
+        continueProcessing = false;
       }
-
-      const ackRequest = {
-        subscription: request.subscription,
-        ackIds: messages.map((msg) => msg.ackId),
-      };
-
-      await client.acknowledge(ackRequest);
-    } else {
-      console.log('No messages received from Pub/Sub subscription');
-    }
-  } catch (error) {
-    console.error('line 77 Error retrieving transactions:', error);
-    if (messages && messages.length > 0) {
-      const ackRequest = {
-        subscription: request.subscription,
-        ackIds: messages.map((msg) => msg.ackId),
-      };
-      await client.acknowledge(ackRequest);
-
-      for (const message of messages) {
-        await handleError(message);
-      }
+    } catch (error) {
+      console.error('Error retrieving transactions:', error);
+      continueProcessing = false;
     }
   }
 }
