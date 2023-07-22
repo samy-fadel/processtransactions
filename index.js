@@ -54,7 +54,7 @@ async function retrieveTransactions() {
           console.log("Transaction:", transaction);
 
           // Get the transaction receipt to check if it's a contract creation
-          const receipt = await web3.eth.getTransactionReceipt(transaction);
+          const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
           const isSmartContractCreation = receipt.contractAddress !== null;
 
           if (isSmartContractCreation) {
@@ -65,6 +65,11 @@ async function retrieveTransactions() {
           }
         }
 
+        // Log total number of transactions and smart contract addresses in the block
+        const blockNumber = messages[0].message.attributes.blockNumber;
+        console.log(`Total transactions in block ${blockNumber}: ${messages.length}`);
+        console.log(`Total smart contract addresses in block ${blockNumber}: ${messages.filter(msg => JSON.parse(msg.message.data.toString()).isSmartContract).length}`);
+        
         const ackRequest = {
           subscription: request.subscription,
           ackIds: messages.map((msg) => msg.ackId),
