@@ -54,7 +54,7 @@ async function retrieveTransactions() {
           console.log("Transaction:", transaction);
 
           // Get the transaction receipt to check if it's a contract creation
-          const receipt = await web3.eth.getTransactionReceipt(transaction.hash);
+          const receipt = await web3.eth.getTransactionReceipt(transaction);
           const isSmartContractCreation = receipt.contractAddress !== null;
 
           if (isSmartContractCreation) {
