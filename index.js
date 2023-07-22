@@ -60,6 +60,9 @@ async function retrieveTransactions() {
           if (isSmartContractCreation) {
             // If it's a smart contract creation, publish the contract address as an individual message
             await publishSmartContractAddress(receipt.contractAddress);
+
+            // Log the transaction hash for the smart contract address
+            console.log(`Transaction Hash for Smart Contract Address ${receipt.contractAddress}: ${transaction.hash}`);
           } else {
             console.log("Not a smart contract creation transaction.");
           }
